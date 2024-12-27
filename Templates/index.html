@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+<html lang="en">
+<head>
+   
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Information Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            color: #333;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .container h1 {
+            text-align: left;
+            color: #4A90E2;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background-color: #4A90E2;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #357ABD;
+        }
+
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .image-container img {
+            max-width: 50%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .editor-container {
+            flex: 1;
+            max-width: 70%; /* Reduced size for the editor */
+            background-color: #fff;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+         
+        }
+        #editor {
+            width: 100%; /* Ensures the editor fits within its container */
+            height: 50%; /* Reduced height */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                gap: 20px; /* Adjust spacing for smaller screens */
+            }
+            .editor-container {
+                max-width: 100%; /* Full width on smaller screens */
+            }
+            #editor {
+                width: 100%; /* Adjust width for responsiveness */
+            }
+        }
+        
+    </style>
+</head>
+<body>
+  
+    <div class="container">
+        <script>
+            var simplemde = new SimpleMDE();
+            </script>
+    
+        <h1>Project Information</h1>
+       
+        
+        <form id="reportForm" action="/inputs" method="POST">
+            <div class="form-group">
+                <label for="project-name">Project Name:</label>
+                <input type="text" id="project-name" name="project-name" placeholder="Enter project name" required>
+            </div>
+            <div class="form-group">
+                <label for="industry">Industry:</label>
+                <input type="text" id="industry" name="industry" placeholder="Enter industry" required>
+            </div>
+            <div class="form-group">
+                <label for="project-objectives">Project Objectives:</label>
+                <textarea id="project-objectives" name="project-objectives" placeholder="Enter project objectives" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="team-members">Team Members:</label>
+                <textarea id="team-members" name="team-members" placeholder="Enter team members" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="project-requirements">Project Requirements:</label>
+                <textarea id="project-requirements" name="project-requirements" placeholder="Enter project requirements" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Generate Report</button>
+        </form>
+    </div>
+    <div class="editor-container">
+        <label for="editor">Report:</label>
+        <textarea id="editor" name="editor" placeholder="Enter text"></textarea>
+        <button  id="btn-trello" class="submit-btn">Generate Gantt and Trello Board</button>
+        <div id="chart_div"></div>
+    </div>
+
+ 
+
+
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['gantt']});
+      google.charts.setOnLoadCallback(drawChart);
+  
+      function daysToMilliseconds(days) {
+        return days * 24 * 60 * 60 * 1000;
+      }
+  
+      function drawChart() {
+  
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task ID');
+        data.addColumn('string', 'Task Name');
+        data.addColumn('date', 'Start Date');
+        data.addColumn('date', 'End Date');
+        data.addColumn('number', 'Duration');
+        data.addColumn('number', 'Percent Complete');
+        data.addColumn('string', 'Dependencies');
+  
+        data.addRows([
+          ['Research', 'Find sources',
+           new Date(2015, 0, 1), new Date(2015, 0, 5), null,  100,  null],
+          ['Write', 'Write paper',
+           null, new Date(2015, 0, 9), daysToMilliseconds(3), 25, 'Research,Outline'],
+          ['Cite', 'Create bibliography',
+           null, new Date(2015, 0, 7), daysToMilliseconds(1), 20, 'Research'],
+          ['Complete', 'Hand in paper',
+           null, new Date(2015, 0, 10), daysToMilliseconds(1), 0, 'Cite,Write'],
+          ['Outline', 'Outline paper',
+           null, new Date(2015, 0, 6), daysToMilliseconds(1), 100, 'Research']
+        ]);
+  
+        var options = {
+          height: 275
+        };
+  
+        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+  
+        chart.draw(data, options);
+      }
+    </script>
+
+
+
+    <script>
+        var simplemde = new SimpleMDE({ element: document.getElementById("editor") });
+        simplemde.value("ejemplo");
+        
+       // var report = "{{ report|safe }}"; // Flask will safely insert the report content here
+       // simplemde.value(report);
+       document.getElementById("reportForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        simplemde.value("");
+        // Gather form data
+        const formData = new FormData(this);
+        const reportFormValues = {};
+        for (const [key, value] of formData.entries()) {
+            reportFormValues[key] = value;
+        }
+    
+        console.log("Form Data to be sent:", reportFormValues);
+    
+        // Make the POST request to /test using fetch
+        fetch('/inputs', {  // Ensure this matches the URL in your Flask route
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reportFormValues)  // Convert form data to JSON
+        })
+        .then(response => {
+            // Check if the response is valid and parse the JSON
+            return response.json();  // Parse the JSON response from Flask
+        })
+        .then(data => {
+            console.log("Server Response:", data);  // Log the parsed response
+        
+            // Assuming the response is a string, you can set it in the editor
+            // If `data` is an object, adjust based on the structure
+            simplemde.value(data);  // If `data` is a string, directly update the editor
+        })
+        .catch(error => {
+            console.error("Error in fetch:", error);
+        });
+    });
+
+const btnTrello = document.getElementById('btn-trello');
+
+btnTrello.addEventListener('click', async () => {
+ 
+  
+    try {
+        const response = await fetch('/trelloboard', { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ editorContent:  simplemde.value()})
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        const data = await response.json(); 
+        console.log('Data from server:', data); 
+    
+      } catch (error) {
+        console.error('Error:', error);
+      }
+}); 
+
+        </script>
+</body>
+</html>
